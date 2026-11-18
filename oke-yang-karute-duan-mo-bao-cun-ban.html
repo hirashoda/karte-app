@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#2e6b4f" />
+    <link rel="icon" href="data:," />
+    <title>お客様カルテ（端末保存版）</title>
+    <style>
+      :root {
+        --bg: #f6f4ee;
+        --surface: #ffffff;
+        --surface2: #efede4;
+        --ink: #22302a;
+        --muted: #5d6d63;
+        --line: #ddd8c9;
+        --primary: #2e6b4f;
+        --primary-dark: #24573f;
+        --primary-soft: #e3efe7;
+        --warn: #b3352b;
+        --warn-bg: #fdecea;
+        --warn-line: #e8a49d;
+        --amber: #a86e12;
+        --amber-bg: #fdf3e0;
+        --amber-fill: #e8a33d;
+        --red-fill: #d9534f;
+        --zone: #d9ddd2;
+        --zone-line: #a9b3a2;
+        --shadow: 0 1px 3px rgba(34, 48, 42, .10);
+        color-scheme: light dark;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141815;
+          --surface: #1e2420;
+          --surface2: #262d28;
+          --ink: #e9ede9;
+          --muted: #a3b3a8;
+          --line: #39423c;
+          --primary: #57a87c;
+          --primary-dark: #57a87c;
+          --primary-soft: #24382c;
+          --warn: #ff9d94;
+          --warn-bg: #40231f;
+          --warn-line: #7c443c;
+          --amber: #eec27a;
+          --amber-bg: #3d2f16;
+          --amber-fill: #c98f2e;
+          --red-fill: #c0504b;
+          --zone: #39423c;
+          --zone-line: #5b6a60;
+          --shadow: 0 1px 3px rgba(0,0,0,.4);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+        font-size: 17px;
+        line-height: 1.55;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      button, input, select, textarea { font: inherit; color: inherit; }
+      button { cursor: pointer; }
+      .wrap { max-width: 680px; margin: 0 auto; padding: 14px 14px 90px; }
+      @media (min-width: 960px) { .wrap { max-width: 880px; } }
+
+      h1 { font-size: 24px; margin: 6px 0 2px; letter-spacing: .02em; }
+      h2 { font-size: 20px; margin: 22px 0 10px; }
+      h3 { font-size: 17px; margin: 16px 0 8px; }
+      .sub { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+
+      /* ---------- buttons ---------- */
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        min-height: 48px; padding: 10px 18px;
+        border-radius: 12px; border: 1px solid var(--line);
+        background: var(--surface); color: var(--ink);
+        font-weight: 600; text-decoration: none; box-shadow: var(--shadow);
+        -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      }
+      .btn:active { transform: scale(.98); }
+      .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+      .btn.primary:active { background: var(--primary-dark); }
+      .btn.danger { background: var(--warn); border-color: var(--warn); color: #fff; }
+      .btn.ghost { box-shadow: none; }
+      .btn.small { min-height: 40px; padding: 6px 14px; font-size: 15px; border-radius: 10px; }
+      .btn.block { width: 100%; }
+      .btn:disabled { opacity: .45; }
+      .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+      .btn-row .btn { flex: 1 1 auto; }
+
+      /* ---------- list ---------- */
+      .search-box {
+        width: 100%; min-height: 52px; padding: 12px 16px;
+        border: 1.5px solid var(--line); border-radius: 14px;
+        background: var(--surface); font-size: 17px;
+      }
+      .search-box:focus { outline: 2px solid var(--primary); outline-offset: 0; border-color: var(--primary); }
+      .cust-grid { display: grid; gap: 10px; margin-top: 12px; }
+      @media (min-width: 960px) { .cust-grid { grid-template-columns: 1fr 1fr; } }
+      .cust-card {
+        display: block; width: 100%; text-align: left;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+        padding: 14px 16px; box-shadow: var(--shadow); min-height: 48px;
+      }
+      .cust-card:active { background: var(--surface2); }
+      .cust-name { font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .cust-furi { font-size: 13px; color: var(--muted); font-weight: 400; }
+      .cust-meta { font-size: 14px; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+      .badge-warn {
+        display: inline-flex; align-items: center; gap: 3px;
+        background: var(--warn); color: #fff; font-size: 13px; font-weight: 700;
+        padding: 2px 9px; border-radius: 999px; vertical-align: middle; white-space: nowrap;
+      }
+      .badge-flag {
+        display: inline-block; background: var(--warn); color: #fff;
+        font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px;
+        margin-left: 8px; vertical-align: middle; white-space: nowrap;
+      }
+      .empty-box {
+        background: var(--surface); border: 1.5px dashed var(--line); border-radius: 14px;
+        padding: 28px 20px; text-align: center; color: var(--muted); margin-top: 14px;
+      }
+      .notice-box {
+        background: var(--surface2); border-radius: 12px; padding: 12px 14px;
+        font-size: 14px; color: var(--muted); margin: 16px 0;
+      }
+
+      /* ---------- detail ---------- */
+      .back-btn {
+        display: inline-flex; align-items: center; gap: 4px;
+        min-height: 44px; padding: 8px 14px 8px 8px; border: none; background: none;
+        color: var(--primary); font-weight: 700; font-size: 16px;
+      }
+      .caution-banner {
+        background: var(--warn-bg); border: 2px solid var(--warn-line); border-radius: 14px;
+        padding: 14px 16px; margin: 12px 0;
+      }
+      .caution-banner .cb-title { color: var(--warn); font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+      .caution-banner ul { margin: 8px 0 0; padding-left: 20px; }
+      .caution-banner li { margin: 3px 0; font-weight: 600; }
+      .tabs {
+        display: flex; gap: 6px; margin: 14px 0 4px; overflow-x: auto; padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tab {
+        flex: 1 0 auto; min-height: 46px; padding: 8px 12px; border-radius: 999px;
+        border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; font-size: 15px;
+        white-space: nowrap;
+      }
+      .tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+      .card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+        padding: 16px; margin: 12px 0; box-shadow: var(--shadow);
+      }
+      .kv { display: grid; grid-template-columns: 108px 1fr; gap: 6px 12px; }
+      .kv dt { color: var(--muted); font-size: 14px; padding-top: 2px; }
+      .kv dd { margin: 0; font-weight: 600; word-break: break-word; }
+      .kv dd .plain { font-weight: 400; white-space: pre-wrap; }
+      .flagged { background: var(--warn-bg); border-radius: 8px; padding: 2px 6px; margin: -2px -6px; }
+      .point-list { list-style: none; margin: 0; padding: 0; }
+      .point-list li { padding: 9px 0; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+      .point-list li:last-child { border-bottom: none; }
+      .point-label { color: var(--muted); font-size: 14px; min-width: 104px; }
+      .point-value { font-weight: 600; flex: 1; min-width: 140px; word-break: break-word; white-space: pre-wrap; }
+
+      /* ---------- records ---------- */
+      .rec-card { border-left: none; }
+      .rec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+      .rec-date { font-weight: 800; font-size: 17px; }
+      .rec-course { color: var(--primary); font-weight: 700; }
+      .rec-price { font-weight: 700; }
+      .rec-body { margin-top: 8px; font-size: 15px; }
+      .rec-body .lbl { color: var(--muted); font-size: 13px; display: block; margin-top: 8px; }
+      .rec-body p { margin: 2px 0 0; white-space: pre-wrap; }
+
+      /* ---------- forms ---------- */
+      .field { margin: 14px 0; }
+      .field label, .field .flabel { display: block; font-weight: 700; margin-bottom: 6px; font-size: 16px; }
+      .field .hint { font-weight: 400; color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
+      .field input[type="text"], .field input[type="tel"], .field input[type="date"],
+      .field input[type="number"], .field select, .field textarea {
+        width: 100%; min-height: 50px; padding: 11px 13px;
+        border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);
+        font-size: 17px;
+      }
+      .field textarea { min-height: 88px; resize: vertical; }
+      .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+      @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+      .check-list { display: grid; gap: 8px; }
+      .check-item {
+        display: flex; align-items: center; gap: 12px;
+        background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px;
+        padding: 12px 14px; min-height: 52px; font-weight: 600;
+      }
+      .check-item input { width: 24px; height: 24px; flex: 0 0 auto; accent-color: var(--primary); }
+      .check-item.on { border-color: var(--warn-line); background: var(--warn-bg); }
+      .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+      .pill { position: relative; }
+      .pill input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; }
+      .pill span {
+        display: inline-flex; align-items: center; min-height: 46px; padding: 8px 16px;
+        border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 600;
+      }
+      .pill input:checked + span { background: var(--primary); border-color: var(--primary); color: #fff; }
+      .pill input:focus-visible + span { outline: 2px solid var(--primary); }
+
+      /* ---------- body diagram ---------- */
+      .body-mode { display: flex; gap: 8px; margin: 10px 0; }
+      .body-mode button {
+        flex: 1; min-height: 48px; border-radius: 12px; font-weight: 700;
+        border: 2px solid var(--line); background: var(--surface);
+      }
+      .body-mode button.mode-concern.active { border-color: var(--amber-fill); background: var(--amber-bg); color: var(--amber); }
+      .body-mode button.mode-avoid.active { border-color: var(--red-fill); background: var(--warn-bg); color: var(--warn); }
+      .body-figs { display: flex; gap: 10px; justify-content: center; }
+      .body-fig { flex: 1; max-width: 220px; text-align: center; }
+      .body-fig .fig-cap { font-size: 14px; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+      .body-fig svg { width: 100%; height: auto; display: block; }
+      .zone { fill: var(--zone); stroke: var(--zone-line); stroke-width: 1.2; cursor: pointer; }
+      .zone.concern { fill: var(--amber-fill); stroke: var(--amber); }
+      .zone.avoid { fill: var(--red-fill); stroke: var(--warn); }
+      .zone-label { font-size: 8.5px; fill: var(--ink); pointer-events: none; text-anchor: middle; font-weight: 600; }
+      .zone.concern + .zone-label, .zone.avoid + .zone-label { fill: #fff; }
+      .fig-readonly .zone { cursor: default; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 6px; min-height: 36px;
+        padding: 4px 8px 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 700;
+      }
+      .chip.concern { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-fill); }
+      .chip.avoid { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-line); }
+      .chip button { border: none; background: none; font-size: 16px; line-height: 1; padding: 6px; color: inherit; min-height: 32px; min-width: 32px; }
+      .chip.static { padding-right: 12px; }
+
+      /* ---------- signature ---------- */
+      .sig-wrap { border: 2px solid var(--line); border-radius: 12px; background: #fff; overflow: hidden; }
+      .sig-wrap canvas { display: block; width: 100%; height: 180px; touch-action: none; }
+      .sig-img { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: #fff; display: block; }
+      .terms-box {
+        background: var(--surface2); border-radius: 12px; padding: 12px 14px;
+        font-size: 14px; max-height: 220px; overflow-y: auto;
+      }
+      .terms-box ol { margin: 6px 0; padding-left: 20px; }
+      .terms-box li { margin: 4px 0; }
+
+      /* ---------- toast / modal ---------- */
+      #toast {
+        position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+        background: var(--ink); color: var(--bg); padding: 12px 20px; border-radius: 999px;
+        font-weight: 700; font-size: 15px; opacity: 0; pointer-events: none; transition: .25s;
+        z-index: 300; max-width: 92vw; text-align: center; box-shadow: var(--shadow);
+      }
+      #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      #toast.warn { background: var(--warn); color: #fff; }
+      .modal-back {
+        position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200;
+        display: flex; align-items: center; justify-content: center; padding: 18px;
+      }
+      .modal {
+        background: var(--surface); border-radius: 16px; padding: 22px 20px;
+        max-width: 480px; width: 100%; max-height: 86vh; overflow-y: auto;
+      }
+      .modal h3 { margin-top: 0; }
+
+      /* ---------- customer mode ---------- */
+      #customerMode {
+        position: fixed; inset: 0; z-index: 100; background: var(--bg);
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
+        padding: 18px 14px calc(30px + env(safe-area-inset-bottom));
+      }
+      #customerMode[hidden] { display: none; }
+      .cm-inner { max-width: 620px; margin: 0 auto; }
+      .cm-head {
+        background: var(--primary-soft); border-radius: 14px; padding: 16px;
+        text-align: center; margin-bottom: 6px;
+      }
+      .cm-head .cm-title { font-size: 21px; font-weight: 800; margin: 0; }
+      .cm-back-note {
+        background: var(--amber-bg); border: 1px solid var(--amber-fill); color: var(--amber);
+        border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 700; margin: 12px 0;
+      }
+      .longpress-wrap { margin: 26px 0 8px; text-align: center; }
+      .longpress-btn {
+        position: relative; overflow: hidden; width: 100%; min-height: 58px;
+        border-radius: 14px; border: 2px solid var(--line); background: var(--surface);
+        font-weight: 700; color: var(--muted); -webkit-user-select: none; user-select: none;
+        -webkit-touch-callout: none; touch-action: none;
+      }
+      .longpress-btn .lp-fill {
+        position: absolute; inset: 0; width: 0%; background: var(--primary-soft); z-index: 0;
+      }
+      .longpress-btn .lp-text { position: relative; z-index: 1; }
+      .longpress-btn.pressing .lp-fill { width: 100%; transition: width 2s linear; }
+      .cm-done { text-align: center; padding: 40px 10px; }
+      .cm-done .big { font-size: 24px; font-weight: 800; margin: 10px 0; }
+
+      .sticky-save {
+        position: sticky; bottom: 10px; z-index: 5; margin-top: 16px;
+      }
+      .sticky-save .btn { box-shadow: 0 4px 16px rgba(0,0,0,.22); }
+      .divider { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+      .small-note { font-size: 13px; color: var(--muted); }
+      .file-label {
+        display: inline-flex; align-items: center; justify-content: center;
+        min-height: 48px; padding: 10px 18px; border-radius: 12px;
+        border: 1px solid var(--line); background: var(--surface); font-weight: 600;
+        box-shadow: var(--shadow); cursor: pointer; width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap" id="app"></main>
+
+    <div id="customerMode" hidden></div>
+    <div id="modalRoot"></div>
+    <div id="toast" role="status"></div>
+
+    <script>
+      "use strict";
+      /* =========================================================
+         お客様カルテ（端末保存版）
+         データはこの端末のブラウザ内（localStorage）にのみ保存されます。
+         保存キーは固定です。今後のアップデートでも変更しません。
+         ========================================================= */
+      var STORAGE_KEY = "hira_bodycare_karte_v1"; // ★固定キー（変更禁止）
+      var DATA_VERSION = 1;
+      var TERMS_VERSION = "第1版（2026-11-18）";
+
+      var CONTRA_ITEMS = [
+        "発熱がある",
+        "感染症にかかっている",
+        "骨折・脱臼・捻挫の直後",
+        "手術直後",
+        "心臓疾患がある",
+        "ペースメーカーを使用している",
+        "血栓症・重度の静脈瘤がある",
+        "骨粗しょう症（重度）",
+        "悪性腫瘍の治療中",
+        "皮膚に炎症・傷・やけどがある",
+        "飲酒直後である",
+        "その他（備考に記入）"
+      ];
+
+      var COURSES = [
+        { name: "通常 60分（ほぐし）", minutes: 60, price: 6000 },
+        { name: "通常 90分（部位オイル）", minutes: 90, price: 10000 },
+        { name: "通常 90分（全身オイル）", minutes: 90, price: 12000 },
+        { name: "通常 120分（全身オイル＋ヘッド）", minutes: 120, price: 15000 },
+        { name: "初回限定 60分", minutes: 60, price: 4000 },
+        { name: "初回限定 90分（体験オイル1部位付き）", minutes: 90, price: 8000 },
+        { name: "その他", minutes: "", price: "" }
+      ];
+
+      var ZONES = [
+        { id: "head", label: "頭" },
+        { id: "neck", label: "首" },
+        { id: "shoulderL", label: "左肩" },
+        { id: "shoulderR", label: "右肩" },
+        { id: "upperArmL", label: "左上腕" },
+        { id: "upperArmR", label: "右上腕" },
+        { id: "forearmL", label: "左前腕" },
+        { id: "forearmR", label: "右前腕" },
+        { id: "handL", label: "左手" },
+        { id: "handR", label: "右手" },
+        { id: "chest", label: "胸" },
+        { id: "abdomen", label: "お腹" },
+        { id: "backUpper", label: "背中（上部）" },
+        { id: "backLower", label: "背中（下部）・腰" },
+        { id: "buttocks", label: "お尻" },
+        { id: "thighL", label: "左太もも" },
+        { id: "thighR", label: "右太もも" },
+        { id: "lowerLegL", label: "左下腿（すね・ふくらはぎ）" },
+        { id: "lowerLegR", label: "右下腿（すね・ふくらはぎ）" },
+        { id: "footL", label: "左足" },
+        { id: "footR", label: "右足" }
+      ];
+      function zoneLabel(id) {
+        for (var i = 0; i < ZONES.length; i++) if (ZONES[i].id === id) return ZONES[i].label;
+        return id;
+      }
+
+      /* ---------------- storage ---------------- */
+      function emptyDB() { return { version: DATA_VERSION, customers: [] }; }
+
+      function loadDB() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return emptyDB();
+          var data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.customers)) return emptyDB();
+          if (!data.version) data.version = 1;
+          // 将来の形式変更はここで version を見て移行する
+          return data;
+        } catch (e) {
+          return emptyDB();
+        }
+      }
+
+      var signatureStrippedNotice = false;
+      function saveDB(showOk) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+          return true;
+        } catch (e) {
+          // 容量オーバー時：署名画像を除いて再保存を試みる
+          var stripped = false;
+          DB.customers.forEach(function (c) {
+            if (c.consent && c.consent.signature) {
+              c.consent.signature = null;
+              c.consent.signatureStripped = true;
+              stripped = true;
+            }
+          });
+          if (stripped) {
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+              signatureStrippedNotice = true;
+              toast("容量がいっぱいのため、署名画像を除いて保存しました", true);
+              return true;
+            } catch (e2) { /* fallthrough */ }
+          }
+          toast("保存できませんでした（端末の容量不足の可能性があります）", true);
+          return false;
+        }
+      }
+
+      var DB = loadDB();
+
+      /* ---------------- utils ---------------- */
+      function esc(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      }
+      function uid() { return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+      function todayStr() {
+        var d = new Date();
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      }
+      function fmtDate(s) {
+        if (!s) return "";
+        var p = s.split("-");
+        if (p.length !== 3) return s;
+        return Number(p[0]) + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
+      }
+      function daysSince(s) {
+        if (!s) return null;
+        var a = new Date(s + "T00:00:00");
+        var b = new Date(); b.setHours(0, 0, 0, 0);
+        return Math.round((b - a) / 86400000);
+      }
+      function calcAge(dob) {
+        if (!dob) return null;
+        var birth = new Date(dob + "T00:00:00");
+        if (isNaN(birth)) return null;
+        var now = new Date();
+        var age = now.getFullYear() - birth.getFullYear();
+        var m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+        return age;
+      }
+      function yen(n) {
+        if (n === "" || n == null || isNaN(Number(n))) return "";
+        return Number(n).toLocaleString("ja-JP") + "円";
+      }
+      var toastTimer = null;
+      function toast(msg, isWarn) {
+        var t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = "show" + (isWarn ? " warn" : "");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { t.className = ""; }, 3400);
+      }
+      function showModal(html) {
+        document.getElementById("modalRoot").innerHTML =
+          '<div class="modal-back"><div class="modal">' + html + "</div></div>";
+      }
+      function closeModal() { document.getElementById("modalRoot").innerHTML = ""; }
+
+      /* 「なし」「特になし」など否定表現だけの記入は要注意にしない */
+      function isNegationOnly(text) {
+        if (!text) return true;
+        var t = String(text).replace(/[\s　、。．.,・:：;；!！?？「」『』（）()\-ー]/g, "");
+        if (!t) return true;
+        t = t.replace(/^(特に|とくに)*/g, "");
+        t = t.replace(/なし|無し|ない|ありません|有りません|無|ナシ/g, "");
+        return t.length === 0;
+      }
+      function hasRealContent(text) { return !isNegationOnly(text); }
+
+      /* ---------------- caution logic ---------------- */
+      function emptyInterview() {
+        return {
+          allergy: "", contraindications: [], medication: "", surgeryHistory: "",
+          pregnancy: "", skin: "", concernAreas: [], avoidAreas: [],
+          pressure: "", goals: "", notes: ""
+        };
+      }
+      function emptyConsent() { return { date: "", signature: null, termsVersion: "", signatureStripped: false }; }
+
+      function cautionInfo(c) {
+        var iv = c.interview || emptyInterview();
+        var flags = {
+          allergy: hasRealContent(iv.allergy),
+          contra: (iv.contraindications || []).slice(),
+          medication: hasRealContent(iv.medication),
+          surgery: hasRealContent(iv.surgeryHistory),
+          pregnancy: (iv.pregnancy === "妊娠中" || iv.pregnancy === "妊娠の可能性がある"),
+          skin: hasRealContent(iv.skin),
+          avoidAreas: (iv.avoidAreas || []).length > 0
+        };
+        var reasons = [];
+        if (flags.allergy) reasons.push("アレルギー：" + iv.allergy);
+        flags.contra.forEach(function (item) { reasons.push("禁忌：「" + item + "」"); });
+        if (flags.medication) reasons.push("服薬：" + iv.medication);
+        if (flags.surgery) reasons.push("手術歴：" + iv.surgeryHistory);
+        if (flags.pregnancy) reasons.push("妊娠：" + iv.pregnancy);
+        if (flags.skin) reasons.push("皮膚の状態：" + iv.skin);
+        if (flags.avoidAreas) reasons.push("触ってほしくない部位：" + (iv.avoidAreas || []).map(zoneLabel).join("、"));
+        return { isCaution: reasons.length > 0, flags: flags, reasons: reasons };
+      }
+      function flagBadge(on) { return on ? '<span class="badge-flag">要注意</span>' : ""; }
+
+      function getCustomer(id) {
+        for (var i = 0; i < DB.customers.length; i++) if (DB.customers[i].id === id) return DB.customers[i];
+        return null;
+      }
+      function sortedRecords(c) {
+        return (c.records || []).slice().sort(function (a, b) { return (b.date || "") < (a.date || "") ? -1 : 1; });
+      }
+      function lastVisit(c) {
+        var r = sortedRecords(c);
+        return r.length ? r[0].date : null;
+      }
+
+      /* ---------------- body diagram ---------------- */
+      // view: "front" | "back"。同じ部位idを表裏で共有する。
+      function zoneShapes(view) {
+        var F = view === "front";
+        var shapes = [
+          { z: "head", s: '<circle cx="100" cy="26" r="16"/>' },
+          { z: "neck", s: '<rect x="91" y="43" width="18" height="11" rx="4"/>' },
+          { z: "shoulderL", s: '<ellipse cx="70" cy="64" rx="17" ry="10"/>' },
+          { z: "shoulderR", s: '<ellipse cx="130" cy="64" rx="17" ry="10"/>' },
+          { z: "upperArmL", s: '<rect x="50" y="62" width="15" height="42" rx="7"/>' },
+          { z: "upperArmR", s: '<rect x="135" y="62" width="15" height="42" rx="7"/>' },
+          { z: "forearmL", s: '<rect x="48" y="108" width="14" height="38" rx="6"/>' },
+          { z: "forearmR", s: '<rect x="138" y="108" width="14" height="38" rx="6"/>' },
+          { z: "handL", s: '<circle cx="55" cy="154" r="8"/>' },
+          { z: "handR", s: '<circle cx="145" cy="154" r="8"/>' }
+        ];
+        if (F) {
+          shapes.push({ z: "chest", s: '<rect x="79" y="58" width="42" height="32" rx="9"/>', label: [100, 78] });
+          shapes.push({ z: "abdomen", s: '<rect x="81" y="94" width="38" height="30" rx="9"/>', label: [100, 113] });
+          shapes.push({ z: "thighL", s: '<rect x="80" y="128" width="19" height="52" rx="9"/>' });
+          shapes.push({ z: "thighR", s: '<rect x="101" y="128" width="19" height="52" rx="9"/>' });
+        } else {
+          shapes.push({ z: "backUpper", s: '<rect x="79" y="58" width="42" height="32" rx="9"/>', label: [100, 78] });
+          shapes.push({ z: "backLower", s: '<rect x="81" y="94" width="38" height="26" rx="9"/>', label: [100, 111] });
+          shapes.push({ z: "buttocks", s: '<rect x="81" y="124" width="38" height="16" rx="8"/>', label: [100, 136] });
+          shapes.push({ z: "thighL", s: '<rect x="80" y="144" width="19" height="40" rx="9"/>' });
+          shapes.push({ z: "thighR", s: '<rect x="101" y="144" width="19" height="40" rx="9"/>' });
+        }
+        shapes.push({ z: "lowerLegL", s: '<rect x="81" y="186" width="17" height="48" rx="8"/>' });
+        shapes.push({ z: "lowerLegR", s: '<rect x="102" y="186" width="17" height="48" rx="8"/>' });
+        shapes.push({ z: "footL", s: '<ellipse cx="89" cy="244" rx="11" ry="6"/>' });
+        shapes.push({ z: "footR", s: '<ellipse cx="111" cy="244" rx="11" ry="6"/>' });
+        return shapes;
+      }
+      var ZONE_SHORT = { chest: "胸", abdomen: "お腹", backUpper: "背中", backLower: "腰", buttocks: "お尻" };
+      function bodySVG(view, concernArr, avoidArr, interactive) {
+        var shapes = zoneShapes(view);
+        var out = '<svg viewBox="0 0 200 258" role="img" aria-label="' + (view === "front" ? "体の前面" : "体の背面") + '">';
+        shapes.forEach(function (sh) {
+          var cls = "zone";
+          if ((avoidArr || []).indexOf(sh.z) >= 0) cls += " avoid";
+          else if ((concernArr || []).indexOf(sh.z) >= 0) cls += " concern";
+          out += '<g>' + sh.s.replace("/>", ' class="' + cls + '" data-zone="' + sh.z + '"' + (interactive ? ' data-interactive="1"' : "") + "/>");
+          if (sh.label && ZONE_SHORT[sh.z]) {
+            out += '<text class="zone-label" x="' + sh.label[0] + '" y="' + sh.label[1] + '">' + ZONE_SHORT[sh.z] + "</text>";
+          }
+          out += "</g>";
+        });
+        out += "</svg>";
+        return out;
+      }
+      function bodyFigureHTML(concernArr, avoidArr, interactive) {
+        return '<div class="body-figs' + (interactive ? "" : " fig-readonly") + '">' +
+          '<div class="body-fig"><div class="fig-cap">前</div>' + bodySVG("front", concernArr, avoidArr, interactive) + "</div>" +
+          '<div class="body-fig"><div class="fig-cap">後ろ</div>' + bodySVG("back", concernArr, avoidArr, interactive) + "</div>" +
+          "</div>";
+      }
+      function chipsHTML(arr, kind, removable) {
+        if (!arr || !arr.length) return '<span class="small-note">なし</span>';
+        return '<div class="chips">' + arr.map(function (z) {
+          return '<span class="chip ' + kind + (removable ? "" : " static") + '">' + esc(zoneLabel(z)) +
+            (removable ? '<button type="button" data-remove-zone="' + z + '" data-kind="' + kind + '" aria-label="削除">×</button>' : "") + "</span>";
+        }).join("") + "</div>";
+      }
+
+      /* ---------------- router ---------------- */
+      var view = { name: "list" };
+      var detailTab = "gaiyou";
+      var searchQuery = "";
+
+      function render() {
+        var app = document.getElementById("app");
+        window.scrollTo(0, 0);
+        if (view.name === "list") app.innerHTML = listHTML();
+        else if (view.name === "detail") app.innerHTML = detailHTML(view.id);
+        else if (view.name === "profileEdit") app.innerHTML = profileFormHTML(view.id);
+        else if (view.name === "interviewEdit") app.innerHTML = interviewPageHTML(view.id);
+        else if (view.name === "recordEdit") app.innerHTML = recordFormHTML(view.id, view.recordId);
+        else if (view.name === "backup") app.innerHTML = backupHTML();
+        bindView();
+      }
+      function go(v) { view = v; render(); }
+
+      /* ---------------- list view ---------------- */
+      function listHTML() {
+        var q = searchQuery.trim();
+        var qDigits = q.replace(/[^0-9]/g, "");
+        var list = DB.customers.filter(function (c) {
+          if (!q) return true;
+          var hay = (c.name || "") + " " + (c.furigana || "");
+          if (hay.toLowerCase().indexOf(q.toLowerCase()) >= 0) return true;
+          if (qDigits && (c.phone || "").replace(/[^0-9]/g, "").indexOf(qDigits) >= 0) return true;
+          return false;
+        });
+        list.sort(function (a, b) {
+          var la = lastVisit(a) || "", lb = lastVisit(b) || "";
+          if (la !== lb) return la < lb ? 1 : -1;
+          return (a.furigana || a.name || "").localeCompare(b.furigana || b.name || "", "ja");
+        });
+
+        var h = "<h1>お客様カルテ</h1>";
+        h += '<p class="sub">お客様 ' + DB.customers.length + "名 登録</p>";
+        h += '<input class="search-box" id="searchInput" type="search" placeholder="名前・ふりがな・電話番号で検索" value="' + esc(searchQuery) + '" autocomplete="off">';
+        h += '<div class="btn-row"><button class="btn primary" id="btnNew">＋ 新規登録</button>' +
+             '<button class="btn" id="btnNewCm">お客様モード（新規）</button></div>';
+
+        if (signatureStrippedNotice) {
+          h += '<div class="caution-banner"><div class="cb-title">⚠ 容量不足のお知らせ</div><p style="margin:6px 0 0">保存容量がいっぱいになったため、署名画像を除いて保存しました。古いバックアップ書き出しで署名を保管するか、不要なデータの整理をご検討ください。</p></div>';
+        }
+
+        if (!DB.customers.length) {
+          h += '<div class="empty-box"><p style="font-size:18px;font-weight:700;color:var(--ink)">まだ登録がありません</p>' +
+               "<p>「＋ 新規登録」から最初のカルテを作れます。<br>以前のカルテアプリから書き出したJSONファイルがあれば、下の「データの保存とバックアップ」から読み込めます。</p></div>";
+        } else if (!list.length) {
+          h += '<div class="empty-box"><p>「' + esc(q) + '」に一致するお客様はいませんでした。</p></div>';
+        } else {
+          h += '<div class="cust-grid">';
+          list.forEach(function (c) {
+            var ci = cautionInfo(c);
+            var lv = lastVisit(c);
+            var ds = lv ? daysSince(lv) : null;
+            h += '<button class="cust-card" data-open="' + c.id + '">' +
+              '<span class="cust-name">' + esc(c.name || "（名前未入力）") +
+              (ci.isCaution ? ' <span class="badge-warn">⚠ 要注意</span>' : "") + "</span>" +
+              (c.furigana ? ' <span class="cust-furi">' + esc(c.furigana) + "</span>" : "") +
+              '<span class="cust-meta"><span>来店 ' + (c.records || []).length + "回</span>" +
+              (lv ? "<span>前回 " + fmtDate(lv) + "（" + (ds === 0 ? "今日" : ds + "日前") + "）</span>"
+                  : "<span>来店記録なし</span>") +
+              "</span></button>";
+          });
+          h += "</div>";
+        }
+
+        h += '<div class="btn-row"><button class="btn block" id="btnBackup">データの保存とバックアップ</button></div>';
+        h += '<div class="notice-box">データはこの端末・このブラウザの中だけに保存されます。別の端末には移りません。端末の故障やブラウザのデータ削除で消えることがあるため、「データの保存とバックアップ」から定期的に書き出してください。</div>';
+        return h;
+      }
+
+      /* ---------------- detail view ---------------- */
+      function cautionBannerHTML(c) {
+        var ci = cautionInfo(c);
+        if (!ci.isCaution) return "";
+        var h = '<div class="caution-banner"><div class="cb-title">⚠ 施術前の確認</div><ul>';
+        ci.reasons.forEach(function (r) { h += "<li>" + esc(r) + "</li>"; });
+        h += "</ul></div>";
+        return h;
+      }
+
+      function pointsHTML(c) {
+        var iv = c.interview || emptyInterview();
+        var ci = cautionInfo(c);
+        var f = ci.flags;
+        var rows = [];
+        function row(label, value, flagged, rawHtml) {
+          if (value == null || value === "") return;
+          rows.push('<li><span class="point-label">' + label + '</span><span class="point-value">' +
+            (rawHtml ? value : esc(value)) + flagBadge(flagged) + "</span></li>");
+        }
+        row("アレルギー", iv.allergy || "（未記入）", f.allergy);
+        if (f.contra.length) row("禁忌", f.contra.join("、"), true);
+        else if ((iv.contraindications || []).length) row("禁忌", iv.contraindications.join("、"), false);
+        row("服薬", iv.medication, f.medication);
+        row("手術歴", iv.surgeryHistory, f.surgery);
+        row("妊娠", iv.pregnancy, f.pregnancy);
+        row("皮膚の状態", iv.skin, f.skin);
+        row("圧の好み", iv.pressure, false);
+        if ((iv.concernAreas || []).length)
+          row("気になる部位", iv.concernAreas.map(zoneLabel).join("、"), false);
+        if ((iv.avoidAreas || []).length)
+          row("触ってほしくない部位", iv.avoidAreas.map(zoneLabel).join("、"), f.avoidAreas);
+        row("目標・気になること", iv.goals, false);
+        if (!rows.length) return '<div class="card"><p class="sub" style="margin:0">問診はまだ入力されていません。</p></div>';
+        return '<div class="card"><h3 style="margin-top:0">問診の要点</h3><ul class="point-list">' + rows.join("") + "</ul></div>";
+      }
+
+      function profileCardHTML(c) {
+        var age = calcAge(c.dob);
+        function dd(v) { return v ? esc(v) : '<span style="color:var(--muted)">（未入力）</span>'; }
+        var h = '<div class="card"><h3 style="margin-top:0">プロフィール</h3><dl class="kv">';
+        h += "<dt>氏名</dt><dd>" + dd(c.name) + (c.furigana ? ' <span class="plain" style="color:var(--muted);font-size:14px">（' + esc(c.furigana) + "）</span>" : "") + "</dd>";
+        h += "<dt>生年月日</dt><dd>" + (c.dob ? fmtDate(c.dob) + (age != null ? "（" + age + "歳）" : "") : dd("")) + "</dd>";
+        h += "<dt>性別</dt><dd>" + dd(c.gender) + "</dd>";
+        h += "<dt>電話番号</dt><dd>" + (c.phone ? '<a href="tel:' + esc(c.phone.replace(/[^0-9+]/g, "")) + '">' + esc(c.phone) + "</a>" : dd("")) + "</dd>";
+        h += "<dt>職業</dt><dd>" + dd(c.occupation) + "</dd>";
+        h += "<dt>来店きっかけ</dt><dd>" + dd(c.source) + "</dd>";
+        h += "<dt>スポーツ</dt><dd>" + dd(c.sports) + "</dd>";
+        if (c.memo) h += '<dt>メモ</dt><dd><span class="plain">' + esc(c.memo) + "</span></dd>";
+        h += "</dl>";
+        h += '<div class="btn-row"><button class="btn" id="btnEditProfile">プロフィールを編集</button></div></div>';
+        return h;
+      }
+
+      function monshinHTML(c) {
+        var iv = c.interview || emptyInterview();
+        var ci = cautionInfo(c);
+        var f = ci.flags;
+        function row(label, value, flagged) {
+          var v = value ? esc(value) : '<span style="color:var(--muted)">（未記入）</span>';
+          return '<li><span class="point-label">' + label + '</span><span class="point-value' + (flagged ? " flagged" : "") + '">' + v + flagBadge(flagged) + "</span></li>";
+        }
+        var h = '<div class="card"><h3 style="margin-top:0">問診票（初回）</h3><ul class="point-list">';
+        h += row("アレルギー", iv.allergy, f.allergy);
+        // 禁忌は項目ごとにバッジを付ける
+        if ((iv.contraindications || []).length) {
+          h += '<li><span class="point-label">禁忌チェック</span><span class="point-value">' +
+            iv.contraindications.map(function (item) {
+              return '<span class="' + (f.contra.indexOf(item) >= 0 ? "flagged" : "") + '">' + esc(item) + flagBadge(f.contra.indexOf(item) >= 0) + "</span>";
+            }).join("<br>") + "</span></li>";
+        } else {
+          h += row("禁忌チェック", "該当なし", false);
+        }
+        h += row("服薬", iv.medication, f.medication);
+        h += row("手術歴", iv.surgeryHistory, f.surgery);
+        h += row("妊娠", iv.pregnancy, f.pregnancy);
+        h += row("皮膚の状態", iv.skin, f.skin);
+        h += row("圧の好み", iv.pressure, false);
+        h += row("目標・気になること", iv.goals, false);
+        h += row("備考", iv.notes, false);
+        h += "</ul>";
+        h += "<h3>気になる部位" + "</h3>" + bodyFigureHTML(iv.concernAreas || [], [], false) + chipsHTML(iv.concernAreas, "concern", false);
+        h += '<h3>触ってほしくない部位' + flagBadge(f.avoidAreas) + "</h3>" + bodyFigureHTML([], iv.avoidAreas || [], false) + chipsHTML(iv.avoidAreas, "avoid", false);
+        h += '<div class="btn-row"><button class="btn" id="btnEditInterview">問診・同意書を編集</button>' +
+             '<button class="btn primary" id="btnCustomerMode">お客様モードで入力してもらう</button></div>';
+        h += "</div>";
+        return h;
+      }
+
+      function consentHTML(c) {
+        var cs = c.consent || emptyConsent();
+        var h = '<div class="card"><h3 style="margin-top:0">施術同意書</h3>';
+        if (cs.date || cs.signature) {
+          h += '<dl class="kv"><dt>同意日</dt><dd>' + (cs.date ? fmtDate(cs.date) : "（未記入）") + "</dd>" +
+               "<dt>条項バージョン</dt><dd>" + esc(cs.termsVersion || "（未記録）") + "</dd></dl>";
+          if (cs.signature) h += '<img class="sig-img" src="' + cs.signature + '" alt="署名">';
+          else if (cs.signatureStripped) h += '<p class="small-note">署名画像は容量不足のため端末内に保存されていません（同意日とバージョンは記録済みです）。</p>';
+          else h += '<p class="small-note">署名はまだ記録されていません。</p>';
+        } else {
+          h += '<p class="sub" style="margin:0">同意書はまだ取得していません。</p>';
+        }
+        h += '<div class="btn-row"><button class="btn" id="btnEditInterview2">同意書を記録・編集</button></div></div>';
+        return h;
+      }
+
+      function recordsHTML(c) {
+        var recs = sortedRecords(c);
+        var h = '<div class="btn-row"><button class="btn primary block" id="btnAddRecord">＋ 施術記録を追加</button></div>';
+        if (!recs.length) {
+          h += '<div class="empty-box"><p>施術記録はまだありません。</p></div>';
+          return h;
+        }
+        recs.forEach(function (r) {
+          h += '<div class="card rec-card"><div class="rec-head"><span class="rec-date">' + fmtDate(r.date) + '</span>' +
+            '<span class="rec-course">' + esc(r.course || "") + "</span>" +
+            '<span class="rec-price">' + (r.minutes ? esc(r.minutes) + "分" : "") + (r.price !== "" && r.price != null ? "　" + yen(r.price) : "") + "</span></div>" +
+            '<div class="rec-body">';
+          if (r.content) h += '<span class="lbl">施術内容</span><p>' + esc(r.content) + "</p>";
+          if (r.condition) h += '<span class="lbl">体の状態</span><p>' + esc(r.condition) + "</p>";
+          if (r.note) h += '<span class="lbl">次回への申し送り</span><p>' + esc(r.note) + "</p>";
+          h += '</div><div class="btn-row"><button class="btn small" data-edit-rec="' + r.id + '">編集</button>' +
+               '<button class="btn small" data-del-rec="' + r.id + '">削除</button></div></div>';
+        });
+        return h;
+      }
+
+      function detailHTML(id) {
+        var c = getCustomer(id);
+        if (!c) return '<p>お客様が見つかりませんでした。</p><button class="btn" id="btnBackList">一覧へ戻る</button>';
+        var lv = lastVisit(c);
+        var ds = lv ? daysSince(lv) : null;
+        var h = '<button class="back-btn" id="btnBackList">‹ 一覧へ戻る</button>';
+        h += "<h1>" + esc(c.name || "（名前未入力）") +
+             (cautionInfo(c).isCaution ? ' <span class="badge-warn">⚠ 要注意</span>' : "") + "</h1>";
+        h += '<p class="sub">' + (c.furigana ? esc(c.furigana) + "　／　" : "") +
+             "来店 " + (c.records || []).length + "回" +
+             (lv ? "　／　前回 " + fmtDate(lv) + "（" + (ds === 0 ? "今日" : ds + "日前") + "）" : "") + "</p>";
+        h += cautionBannerHTML(c);
+        h += '<div class="tabs" role="tablist">' +
+          [["gaiyou", "概要"], ["monshin", "問診票"], ["doi", "同意書"], ["kiroku", "施術記録"]].map(function (t) {
+            return '<button class="tab' + (detailTab === t[0] ? " active" : "") + '" data-tab="' + t[0] + '">' + t[1] + "</button>";
+          }).join("") + "</div>";
+        if (detailTab === "gaiyou") h += pointsHTML(c) + profileCardHTML(c);
+        else if (detailTab === "monshin") h += monshinHTML(c);
+        else if (detailTab === "doi") h += consentHTML(c);
+        else h += recordsHTML(c);
+        h += '<hr class="divider"><button class="btn danger block" id="btnDeleteCustomer">このお客様のカルテを削除</button>';
+        return h;
+      }
+
+      /* ---------------- profile form ---------------- */
+      function profileFormHTML(id) {
+        var c = id ? getCustomer(id) : null;
+        var v = c || { name: "", furigana: "", dob: "", gender: "", phone: "", occupation: "", source: "", sports: "", memo: "" };
+        var h = '<button class="back-btn" id="btnCancelProfile">‹ 戻る</button>';
+        h += "<h1>" + (c ? "プロフィール編集" : "新規登録") + "</h1>";
+        h += '<form id="profileForm" autocomplete="off">';
+        h += '<div class="field"><label for="p-name">氏名 <span style="color:var(--warn)">*</span></label><input type="text" id="p-name" value="' + esc(v.name) + '" placeholder="例：山田 花子"></div>';
+        h += '<div class="field"><label for="p-furigana">ふりがな</label><input type="text" id="p-furigana" value="' + esc(v.furigana) + '" placeholder="例：やまだ はなこ"></div>';
+        h += '<div class="grid2"><div class="field"><label for="p-dob">生年月日</label><input type="date" id="p-dob" value="' + esc(v.dob) + '"></div>';
+        h += '<div class="field"><label for="p-gender">性別</label><select id="p-gender">' +
+          ["", "女性", "男性", "その他"].map(function (g) {
+            return '<option value="' + g + '"' + (v.gender === g ? " selected" : "") + ">" + (g || "選択してください") + "</option>";
+          }).join("") + "</select></div></div>";
+        h += '<div class="field"><label for="p-phone">電話番号</label><input type="tel" id="p-phone" value="' + esc(v.phone) + '" placeholder="例：090-0000-0000"></div>';
+        h += '<div class="field"><label for="p-occupation">職業</label><input type="text" id="p-occupation" value="' + esc(v.occupation) + '"></div>';
+        h += '<div class="field"><label for="p-source">来店きっかけ</label><input type="text" id="p-source" value="' + esc(v.source) + '" placeholder="例：Instagram、紹介、ジム会員 など"></div>';
+        h += '<div class="field"><label for="p-sports">スポーツ・運動歴</label><input type="text" id="p-sports" value="' + esc(v.sports) + '" placeholder="例：水泳、筋トレ、ランニング など"></div>';
+        h += '<div class="field"><label for="p-memo">メモ</label><textarea id="p-memo" placeholder="スタッフ用メモ">' + esc(v.memo) + "</textarea></div>";
+        h += '<div class="sticky-save"><button type="submit" class="btn primary block">保存する</button></div>';
+        h += "</form>";
+        return h;
+      }
+
+      /* ---------------- interview form (shared: staff & customer mode) ---------------- */
+      var formState = null; // {concern:Set, avoid:Set, mode:'concern'|'avoid', prefix}
+      var sigState = null;  // {canvas, ctx, drawing, has, lastX, lastY}
+
+      function termsHTML() {
+        return '<div class="terms-box"><strong>施術に関する同意条項（' + TERMS_VERSION + '）</strong><ol>' +
+          "<li>本施術はリラクゼーションを目的としたものであり、医療行為（診断・治療）ではありません。</li>" +
+          "<li>施術中に痛みや不快感がある場合は、すぐに施術者へお知らせください。</li>" +
+          "<li>体調不良、発熱、飲酒後、妊娠中、その他施術に適さない状態の場合は、施術をお断りすることがあります。</li>" +
+          "<li>持病・服薬・アレルギー等は問診票に正確にご記入ください。記入内容によっては施術内容を変更する場合があります。</li>" +
+          "<li>全身オイルケアでは、胸とお尻は施術範囲に含みません。</li>" +
+          "<li>問診票にご記入いただいた個人情報は、施術および安全管理の目的以外には使用しません。</li>" +
+          "</ol></div>";
+      }
+
+      function interviewFormHTML(prefix, iv, cs, includeProfile, profileVals) {
+        var p = prefix;
+        var h = "";
+        if (includeProfile) {
+          var pv = profileVals || {};
+          h += '<div class="field"><label for="' + p + 'name">お名前 <span style="color:var(--warn)">*</span></label><input type="text" id="' + p + 'name" value="' + esc(pv.name || "") + '"></div>';
+          h += '<div class="field"><label for="' + p + 'furigana">ふりがな</label><input type="text" id="' + p + 'furigana" value="' + esc(pv.furigana || "") + '"></div>';
+          h += '<div class="grid2"><div class="field"><label for="' + p + 'dob">生年月日</label><input type="date" id="' + p + 'dob" value="' + esc(pv.dob || "") + '"></div>';
+          h += '<div class="field"><label for="' + p + 'gender">性別</label><select id="' + p + 'gender">' +
+            ["", "女性", "男性", "その他"].map(function (g) {
+              return '<option value="' + g + '"' + (pv.gender === g ? " selected" : "") + ">" + (g || "選択してください") + "</option>";
+            }).join("") + "</select></div></div>";
+          h += '<div class="field"><label for="' + p + 'phone">電話番号</label><input type="tel" id="' + p + 'phone" value="' + esc(pv.phone || "") + '"></div>';
+          h += '<div class="field"><label for="' + p + 'occupation">職業</label><input type="text" id="' + p + 'occupation" value="' + esc(pv.occupation || "") + '"></div>';
+          h += '<div class="field"><label for="' + p + 'source">来店のきっかけ</label><input type="text" id="' + p + 'source" value="' + esc(pv.source || "") + '" placeholder="Instagram、紹介 など"></div>';
+          h += '<div class="field"><label for="' + p + 'sports">スポーツ・運動歴</label><input type="text" id="' + p + 'sports" value="' + esc(pv.sports || "") + '"></div>';
+          h += '<hr class="divider">';
+        }
+        h += '<div class="field"><label for="' + p + 'allergy">アレルギー<span class="hint">食べ物・薬・オイルや化粧品など。なければ「なし」とご記入ください。</span></label><input type="text" id="' + p + 'allergy" value="' + esc(iv.allergy) + '" placeholder="例：ラテックス、ナッツ類 など"></div>';
+
+        h += '<div class="field"><span class="flabel">禁忌チェック<span class="hint">当てはまるものすべてにチェックしてください。</span></span><div class="check-list">';
+        CONTRA_ITEMS.forEach(function (item, i) {
+          var on = (iv.contraindications || []).indexOf(item) >= 0;
+          h += '<label class="check-item' + (on ? " on" : "") + '"><input type="checkbox" class="' + p + 'contra" value="' + esc(item) + '"' + (on ? " checked" : "") + "> " + esc(item) + "</label>";
+        });
+        h += "</div></div>";
+
+        h += '<div class="field"><label for="' + p + 'medication">服薬<span class="hint">現在服用中のお薬があればご記入ください。</span></label><input type="text" id="' + p + 'medication" value="' + esc(iv.medication) + '"></div>';
+        h += '<div class="field"><label for="' + p + 'surgery">手術歴</label><input type="text" id="' + p + 'surgery" value="' + esc(iv.surgeryHistory) + '" placeholder="例：○年 膝の手術 など"></div>';
+        h += '<div class="field"><label for="' + p + 'pregnancy">妊娠について</label><select id="' + p + 'pregnancy">' +
+          ["", "該当なし", "妊娠中", "妊娠の可能性がある", "授乳中"].map(function (g) {
+            return '<option value="' + g + '"' + (iv.pregnancy === g ? " selected" : "") + ">" + (g || "選択してください") + "</option>";
+          }).join("") + "</select></div>";
+        h += '<div class="field"><label for="' + p + 'skin">皮膚の状態<span class="hint">乾燥・湿疹・傷など、気になることがあればご記入ください。</span></label><input type="text" id="' + p + 'skin" value="' + esc(iv.skin) + '"></div>';
+
+        h += '<div class="field"><span class="flabel">体の部位の選択<span class="hint">まず種類を選び、体の図の部位をタップしてください。もう一度タップすると外れます。</span></span>' +
+          '<div class="body-mode">' +
+          '<button type="button" class="mode-concern' + (formState && formState.mode === "concern" ? " active" : "") + '" data-bodymode="concern">● 気になる部位</button>' +
+          '<button type="button" class="mode-avoid' + (formState && formState.mode === "avoid" ? " active" : "") + '" data-bodymode="avoid">● 触ってほしくない部位</button></div>' +
+          '<div id="' + p + 'bodyFigs">' + bodyFigureHTML(iv.concernAreas || [], iv.avoidAreas || [], true) + "</div>" +
+          '<div style="margin-top:10px"><strong style="color:var(--amber)">気になる部位</strong><div id="' + p + 'chipsConcern">' + chipsHTML(iv.concernAreas, "concern", true) + "</div></div>" +
+          '<div style="margin-top:8px"><strong style="color:var(--warn)">触ってほしくない部位</strong><div id="' + p + 'chipsAvoid">' + chipsHTML(iv.avoidAreas, "avoid", true) + "</div></div></div>";
+
+        h += '<div class="field"><span class="flabel">圧の好み</span><div class="pill-group">' +
+          ["弱め", "やや弱め", "普通", "やや強め", "強め"].map(function (pr) {
+            return '<label class="pill"><input type="radio" name="' + p + 'pressure" value="' + pr + '"' + (iv.pressure === pr ? " checked" : "") + "><span>" + pr + "</span></label>";
+          }).join("") + "</div></div>";
+
+        h += '<div class="field"><label for="' + p + 'goals">目標・気になること</label><textarea id="' + p + 'goals" placeholder="例：肩こりを楽にしたい、姿勢を整えたい など">' + esc(iv.goals) + "</textarea></div>";
+        h += '<div class="field"><label for="' + p + 'notes">備考</label><textarea id="' + p + 'notes" placeholder="その他、伝えておきたいこと">' + esc(iv.notes) + "</textarea></div>";
+
+        h += '<hr class="divider"><h3>施術同意書</h3>' + termsHTML();
+        h += '<label class="check-item" style="margin-top:12px"><input type="checkbox" id="' + p + 'agree"' + (cs.date ? " checked" : "") + '> 上記の内容を確認し、同意します</label>';
+        h += '<div class="field"><label for="' + p + 'consentDate">同意日</label><input type="date" id="' + p + 'consentDate" value="' + esc(cs.date || todayStr()) + '"></div>';
+        h += '<div class="field"><span class="flabel">署名<span class="hint">枠内に指またはペンでご署名ください。</span></span>' +
+          '<div class="sig-wrap"><canvas id="' + p + 'sig"></canvas></div>' +
+          '<div class="btn-row"><button type="button" class="btn small" id="' + p + 'sigClear">書き直し（クリア）</button></div>' +
+          (cs.signatureStripped ? '<p class="small-note">以前の署名画像は容量不足のため保存されていません。再度ご署名いただくと記録されます。</p>' : "") +
+          "</div>";
+        return h;
+      }
+
+      function interviewPageHTML(id) {
+        var c = getCustomer(id);
+        if (!c) return "<p>お客様が見つかりませんでした。</p>";
+        formState = {
+          concern: new Set(c.interview ? c.interview.concernAreas || [] : []),
+          avoid: new Set(c.interview ? c.interview.avoidAreas || [] : []),
+          mode: "concern", prefix: "i-"
+        };
+        var h = '<button class="back-btn" id="btnBackDetail">‹ カルテに戻る</button>';
+        h += "<h1>問診・同意書</h1><p class=\"sub\">" + esc(c.name) + " 様</p>";
+        h += '<form id="interviewForm" autocomplete="off">' +
+          interviewFormHTML("i-", c.interview || emptyInterview(), c.consent || emptyConsent(), false, null) +
+          '<div class="sticky-save"><button type="submit" class="btn primary block">保存する</button></div></form>';
+        return h;
+      }
+
+      function readInterviewForm(p) {
+        function val(id) { var el = document.getElementById(p + id); return el ? el.value.trim() : ""; }
+        var contra = [];
+        document.querySelectorAll('input[type="checkbox"].' + CSS.escape(p + "contra") + ":checked").forEach(function (cb) { contra.push(cb.value); });
+        var pressureEl = document.querySelector('input[name="' + p + 'pressure"]:checked');
+        var agreeEl = document.getElementById(p + "agree");
+        var sig = exportSignature();
+        var consentDate = val("consentDate");
+        var consent = emptyConsent();
+        if (agreeEl && agreeEl.checked) {
+          consent.date = consentDate || todayStr();
+          consent.signature = sig;
+          consent.termsVersion = TERMS_VERSION;
+          consent.signatureStripped = false;
+        } else if (sig) {
+          consent.date = consentDate || todayStr();
+          consent.signature = sig;
+          consent.termsVersion = TERMS_VERSION;
+          consent.signatureStripped = false;
+        }
+        return {
+          interview: {
+            allergy: val("allergy"),
+            contraindications: contra,
+            medication: val("medication"),
+            surgeryHistory: val("surgery"),
+            pregnancy: val("pregnancy"),
+            skin: val("skin"),
+            concernAreas: Array.from(formState.concern),
+            avoidAreas: Array.from(formState.avoid),
+            pressure: pressureEl ? pressureEl.value : "",
+            goals: val("goals"),
+            notes: val("notes")
+          },
+          consent: consent
+        };
+      }
+
+      /* ---------------- signature pad ---------------- */
+      function initSignature(canvasId, existingDataURL) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas) { sigState = null; return; }
+        var dpr = window.devicePixelRatio || 1;
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(180 * dpr);
+        var ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.strokeStyle = "#1a1a2e";
+        sigState = { canvas: canvas, ctx: ctx, drawing: false, has: false, lastX: 0, lastY: 0, w: rect.width, h: 180 };
+        if (existingDataURL) {
+          var img = new Image();
+          img.onload = function () {
+            ctx.drawImage(img, 0, 0, rect.width, 180);
+            sigState.has = true;
+          };
+          img.src = existingDataURL;
+        }
+        function pos(e) {
+          var r = canvas.getBoundingClientRect();
+          return { x: e.clientX - r.left, y: e.clientY - r.top };
+        }
+        canvas.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          canvas.setPointerCapture(e.pointerId);
+          var p = pos(e);
+          sigState.drawing = true; sigState.lastX = p.x; sigState.lastY = p.y; sigState.has = true;
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 0.1, p.y + 0.1); ctx.stroke();
+        });
+        canvas.addEventListener("pointermove", function (e) {
+          if (!sigState.drawing) return;
+          e.preventDefault();
+          var p = pos(e);
+          ctx.beginPath(); ctx.moveTo(sigState.lastX, sigState.lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
+          sigState.lastX = p.x; sigState.lastY = p.y;
+        });
+        function end(e) { if (sigState) sigState.drawing = false; }
+        canvas.addEventListener("pointerup", end);
+        canvas.addEventListener("pointercancel", end);
+      }
+      function clearSignature() {
+        if (!sigState) return;
+        sigState.ctx.clearRect(0, 0, sigState.w, sigState.h);
+        sigState.has = false;
+      }
+      function exportSignature() {
+        if (!sigState || !sigState.has) return null;
+        // 保存容量節約のため幅800pxに縮小してJPEG化
+        var src = sigState.canvas;
+        var scale = Math.min(1, 800 / src.width);
+        var out = document.createElement("canvas");
+        out.width = Math.round(src.width * scale);
+        out.height = Math.round(src.height * scale);
+        var octx = out.getContext("2d");
+        octx.fillStyle = "#ffffff"; octx.fillRect(0, 0, out.width, out.height);
+        octx.drawImage(src, 0, 0, out.width, out.height);
+        return out.toDataURL("image/jpeg", 0.85);
+      }
+
+      /* ---------------- record form ---------------- */
+      function recordFormHTML(customerId, recordId) {
+        var c = getCustomer(customerId);
+        if (!c) return "<p>お客様が見つかりませんでした。</p>";
+        var r = null;
+        if (recordId) {
+          (c.records || []).forEach(function (x) { if (x.id === recordId) r = x; });
+        }
+        var v = r || { date: todayStr(), course: COURSES[0].name, minutes: 60, price: 6000, content: "", condition: "", note: "" };
+        var h = '<button class="back-btn" id="btnBackDetail">‹ カルテに戻る</button>';
+        h += "<h1>" + (r ? "施術記録を編集" : "施術記録を追加") + "</h1><p class=\"sub\">" + esc(c.name) + " 様</p>";
+        h += '<form id="recordForm" autocomplete="off">';
+        h += '<div class="field"><label for="r-date">日付</label><input type="date" id="r-date" value="' + esc(v.date) + '"></div>';
+        h += '<div class="field"><label for="r-course">コース<span class="hint">選ぶと時間と料金が自動で入ります（あとから変更できます）。</span></label><select id="r-course">' +
+          COURSES.map(function (co) {
+            return '<option value="' + esc(co.name) + '"' + (v.course === co.name ? " selected" : "") + ">" + esc(co.name) + "</option>";
+          }).join("") + "</select></div>";
+        h += '<div class="grid2"><div class="field"><label for="r-minutes">時間（分）</label><input type="number" id="r-minutes" inputmode="numeric" min="0" value="' + esc(v.minutes) + '"></div>';
+        h += '<div class="field"><label for="r-price">料金（円）</label><input type="number" id="r-price" inputmode="numeric" min="0" value="' + esc(v.price) + '"></div></div>';
+        h += '<div class="field"><label for="r-content">施術内容</label><textarea id="r-content" placeholder="例：全身ほぐし＋肩・腰重点、部位オイル（背中）">' + esc(v.content) + "</textarea></div>";
+        h += '<div class="field"><label for="r-condition">体の状態</label><textarea id="r-condition" placeholder="例：右肩の張りが強い、腰は前回より良好">' + esc(v.condition) + "</textarea></div>";
+        h += '<div class="field"><label for="r-note">次回への申し送り</label><textarea id="r-note" placeholder="例：次回は首まわりを長めに、圧はやや強めで">' + esc(v.note) + "</textarea></div>";
+        h += '<div class="sticky-save"><button type="submit" class="btn primary block">保存する</button></div></form>';
+        return h;
+      }
+
+      /* ---------------- backup view ---------------- */
+      function storageBytes() {
+        try { return (localStorage.getItem(STORAGE_KEY) || "").length; } catch (e) { return 0; }
+      }
+      function backupHTML() {
+        var kb = Math.round(storageBytes() / 1024 * 10) / 10;
+        var h = '<button class="back-btn" id="btnBackList">‹ 一覧へ戻る</button>';
+        h += "<h1>データの保存とバックアップ</h1>";
+        h += '<div class="notice-box" style="margin-top:6px"><strong>データはこの端末・このブラウザの中だけに保存されます。別の端末には移りません。</strong><br>端末の故障・機種変更・ブラウザのデータ削除で消えてしまうため、定期的に書き出して保管してください。</div>';
+        h += '<div class="card"><h3 style="margin-top:0">現在のデータ</h3><dl class="kv">' +
+          "<dt>お客様</dt><dd>" + DB.customers.length + "名</dd>" +
+          "<dt>使用容量</dt><dd>約 " + kb + " KB</dd></dl></div>";
+        h += '<div class="card"><h3 style="margin-top:0">書き出し（バックアップ）</h3>' +
+          '<p class="sub">全データをJSONファイルとして保存します。このファイルを保管しておけば、読み込みで復元できます。</p>' +
+          '<button class="btn primary block" id="btnExport">全データを書き出す（JSON）</button></div>';
+        h += '<div class="card"><h3 style="margin-top:0">読み込み（復元）</h3>' +
+          '<p class="sub">書き出したJSONファイルを読み込みます。<strong>現在のデータは上書きされます。</strong></p>' +
+          '<label class="file-label" for="importFile">JSONファイルを選んで読み込む</label>' +
+          '<input type="file" id="importFile" accept=".json,application/json" hidden></div>';
+        h += '<div class="card"><h3 style="margin-top:0">全削除</h3>' +
+          '<p class="sub">この端末に保存されたカルテをすべて削除します。元に戻せません。</p>' +
+          '<button class="btn danger block" id="btnDeleteAll">すべてのデータを削除</button></div>';
+        return h;
+      }
+
+      /* ---------------- customer mode ---------------- */
+      var cmActive = false;
+      var cmCustomerId = null; // null = 新規
+      var cmDone = false;
+
+      function enterCustomerMode(customerId) {
+        cmActive = true;
+        cmDone = false;
+        cmCustomerId = customerId || null;
+        var c = customerId ? getCustomer(customerId) : null;
+        formState = {
+          concern: new Set(c && c.interview ? c.interview.concernAreas || [] : []),
+          avoid: new Set(c && c.interview ? c.interview.avoidAreas || [] : []),
+          mode: "concern", prefix: "cm-"
+        };
+        var cm = document.getElementById("customerMode");
+        var h = '<div class="cm-inner">';
+        h += '<div class="cm-head"><p class="cm-title">問診票のご記入</p>' +
+          '<p style="margin:6px 0 0">安全に施術を行うため、ご記入をお願いいたします。<br>分からない項目は空欄で大丈夫です。</p></div>';
+        h += '<div class="cm-back-note">この画面のあいだは、ブラウザや端末の「戻る」ボタンでは画面を離れられません。途中でやめたいときはスタッフにお声がけください。</div>';
+        h += '<form id="cmForm" autocomplete="off">' +
+          interviewFormHTML("cm-", c ? (c.interview || emptyInterview()) : emptyInterview(), c ? (c.consent || emptyConsent()) : emptyConsent(), true,
+            c ? { name: c.name, furigana: c.furigana, dob: c.dob, gender: c.gender, phone: c.phone, occupation: c.occupation, source: c.source, sports: c.sports } : null) +
+          '<div class="sticky-save"><button type="submit" class="btn primary block" style="min-height:56px;font-size:18px">入力を終える</button></div></form>';
+        h += longPressHTML("スタッフ画面に戻る（2秒長押し）");
+        h += "</div>";
+        cm.innerHTML = h;
+        cm.hidden = false;
+        document.body.style.overflow = "hidden";
+        cm.scrollTop = 0;
+        // 「戻る」で外に出られないようにする
+        history.pushState({ cm: 1 }, "");
+        history.pushState({ cm: 1 }, "");
+        bindCustomerMode(c);
+      }
+
+      function longPressHTML(label) {
+        return '<div class="longpress-wrap"><button type="button" class="longpress-btn" id="lpBtn">' +
+          '<span class="lp-fill"></span><span class="lp-text">' + esc(label) + "</span></button>" +
+          '<p class="small-note">スタッフ専用：ボタンを2秒間押し続けると戻ります</p></div>';
+      }
+
+      function bindLongPress(btn, onDone) {
+        if (!btn) return;
+        var timer = null;
+        function start(e) {
+          e.preventDefault();
+          btn.classList.add("pressing");
+          timer = setTimeout(function () {
+            btn.classList.remove("pressing");
+            onDone();
+          }, 2000);
+        }
+        function cancel() {
+          btn.classList.remove("pressing");
+          if (timer) { clearTimeout(timer); timer = null; }
+        }
+        btn.addEventListener("pointerdown", start);
+        btn.addEventListener("pointerup", cancel);
+        btn.addEventListener("pointerleave", cancel);
+        btn.addEventListener("pointercancel", cancel);
+        btn.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      }
+
+      function exitCustomerMode() {
+        cmActive = false;
+        cmDone = false;
+        var cm = document.getElementById("customerMode");
+        cm.hidden = true;
+        cm.innerHTML = "";
+        document.body.style.overflow = "";
+        render();
+      }
+
+      function showCmDone() {
+        cmDone = true;
+        var cm = document.getElementById("customerMode");
+        var h = '<div class="cm-inner"><div class="cm-done">' +
+          '<div style="font-size:44px">✓</div>' +
+          '<p class="big">ご記入ありがとうございました</p>' +
+          "<p>このまま端末をスタッフにお渡しください。</p>" +
+          '<div class="cm-back-note">ブラウザや端末の「戻る」ボタンでは画面を離れられません。</div>' +
+          "</div>" + longPressHTML("スタッフ画面に戻る（2秒長押し）") + "</div>";
+        cm.innerHTML = h;
+        cm.scrollTop = 0;
+        bindLongPress(document.getElementById("lpBtn"), exitCustomerMode);
+      }
+
+      function bindCustomerMode(c) {
+        initSignature("cm-sig", c && c.consent ? c.consent.signature : null);
+        bindBodyDiagram("cm-");
+        var clearBtn = document.getElementById("cm-sigClear");
+        if (clearBtn) clearBtn.addEventListener("click", clearSignature);
+        bindLongPress(document.getElementById("lpBtn"), exitCustomerMode);
+        document.getElementById("cmForm").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var name = document.getElementById("cm-name").value.trim();
+          if (!name) { toast("お名前をご記入ください", true); document.getElementById("cm-name").focus(); return; }
+          if (!document.getElementById("cm-agree").checked) {
+            toast("同意書の確認チェックをお願いします", true);
+            document.getElementById("cm-agree").scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+          var data = readInterviewForm("cm-");
+          var target = c;
+          if (!target) {
+            target = {
+              id: uid(), name: "", furigana: "", dob: "", gender: "", phone: "",
+              occupation: "", source: "", sports: "", memo: "",
+              interview: emptyInterview(), consent: emptyConsent(), records: [],
+              createdAt: new Date().toISOString()
+            };
+            DB.customers.push(target);
+          }
+          target.name = name;
+          target.furigana = document.getElementById("cm-furigana").value.trim();
+          target.dob = document.getElementById("cm-dob").value;
+          target.gender = document.getElementById("cm-gender").value;
+          target.phone = document.getElementById("cm-phone").value.trim();
+          target.occupation = document.getElementById("cm-occupation").value.trim();
+          target.source = document.getElementById("cm-source").value.trim();
+          target.sports = document.getElementById("cm-sports").value.trim();
+          target.interview = data.interview;
+          // 同意が空で既存の同意がある場合は既存を保持
+          if (data.consent.date || data.consent.signature) target.consent = data.consent;
+          target.updatedAt = new Date().toISOString();
+          saveDB();
+          showCmDone();
+        });
+      }
+
+      window.addEventListener("popstate", function () {
+        if (cmActive) {
+          history.pushState({ cm: 1 }, "");
+          toast("お客様モード中は「戻る」では画面を離れられません", true);
+        }
+      });
+
+      /* ---------------- body diagram binding ---------------- */
+      function refreshBodyFigs(p) {
+        var figs = document.getElementById(p + "bodyFigs");
+        if (figs) figs.innerHTML = bodyFigureHTML(Array.from(formState.concern), Array.from(formState.avoid), true);
+        var cc = document.getElementById(p + "chipsConcern");
+        if (cc) cc.innerHTML = chipsHTML(Array.from(formState.concern), "concern", true);
+        var ca = document.getElementById(p + "chipsAvoid");
+        if (ca) ca.innerHTML = chipsHTML(Array.from(formState.avoid), "avoid", true);
+        bindZones(p);
+        bindChips(p);
+      }
+      function bindZones(p) {
+        document.querySelectorAll("#" + p + "bodyFigs .zone[data-interactive]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            var z = el.getAttribute("data-zone");
+            var set = formState.mode === "concern" ? formState.concern : formState.avoid;
+            var other = formState.mode === "concern" ? formState.avoid : formState.concern;
+            if (set.has(z)) set.delete(z);
+            else { set.add(z); other.delete(z); }
+            refreshBodyFigs(p);
+          });
+        });
+      }
+      function bindChips(p) {
+        document.querySelectorAll("[data-remove-zone]").forEach(function (btn) {
+          if (btn.closest("#customerMode") && p !== "cm-") return;
+          if (!btn.closest("#customerMode") && p === "cm-") return;
+          btn.addEventListener("click", function () {
+            var z = btn.getAttribute("data-remove-zone");
+            if (btn.getAttribute("data-kind") === "concern") formState.concern.delete(z);
+            else formState.avoid.delete(z);
+            refreshBodyFigs(p);
+          });
+        });
+      }
+      function bindBodyDiagram(p) {
+        document.querySelectorAll("[data-bodymode]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            formState.mode = btn.getAttribute("data-bodymode");
+            document.querySelectorAll("[data-bodymode]").forEach(function (b) {
+              b.classList.toggle("active", b.getAttribute("data-bodymode") === formState.mode);
+            });
+          });
+        });
+        bindZones(p);
+        bindChips(p);
+        document.querySelectorAll('input[type="checkbox"].' + CSS.escape(p + "contra")).forEach(function (cb) {
+          cb.addEventListener("change", function () {
+            cb.closest(".check-item").classList.toggle("on", cb.checked);
+          });
+        });
+      }
+
+      /* ---------------- view binding ---------------- */
+      function bindView() {
+        var q = function (sel) { return document.querySelector(sel); };
+        var qa = function (sel) { return document.querySelectorAll(sel); };
+
+        if (view.name === "list") {
+          var si = q("#searchInput");
+          if (si) si.addEventListener("input", function () {
+            searchQuery = si.value;
+            var pos = si.selectionStart;
+            render();
+            var nsi = q("#searchInput");
+            nsi.focus();
+            try { nsi.setSelectionRange(pos, pos); } catch (e) {}
+          });
+          q("#btnNew").addEventListener("click", function () { detailTab = "gaiyou"; go({ name: "profileEdit", id: null }); });
+          q("#btnNewCm").addEventListener("click", function () { enterCustomerMode(null); });
+          q("#btnBackup").addEventListener("click", function () { go({ name: "backup" }); });
+          qa("[data-open]").forEach(function (el) {
+            el.addEventListener("click", function () { detailTab = "gaiyou"; go({ name: "detail", id: el.getAttribute("data-open") }); });
+          });
+        }
+
+        if (view.name === "detail") {
+          var back = q("#btnBackList");
+          if (back) back.addEventListener("click", function () { go({ name: "list" }); });
+          qa("[data-tab]").forEach(function (el) {
+            el.addEventListener("click", function () { detailTab = el.getAttribute("data-tab"); render(); });
+          });
+          var ep = q("#btnEditProfile");
+          if (ep) ep.addEventListener("click", function () { go({ name: "profileEdit", id: view.id }); });
+          var ei = q("#btnEditInterview");
+          if (ei) ei.addEventListener("click", function () { go({ name: "interviewEdit", id: view.id }); });
+          var ei2 = q("#btnEditInterview2");
+          if (ei2) ei2.addEventListener("click", function () { go({ name: "interviewEdit", id: view.id }); });
+          var cmBtn = q("#btnCustomerMode");
+          if (cmBtn) cmBtn.addEventListener("click", function () { enterCustomerMode(view.id); });
+          var ar = q("#btnAddRecord");
+          if (ar) ar.addEventListener("click", function () { go({ name: "recordEdit", id: view.id, recordId: null }); });
+          qa("[data-edit-rec]").forEach(function (el) {
+            el.addEventListener("click", function () { go({ name: "recordEdit", id: view.id, recordId: el.getAttribute("data-edit-rec") }); });
+          });
+          qa("[data-del-rec]").forEach(function (el) {
+            el.addEventListener("click", function () {
+              var rid = el.getAttribute("data-del-rec");
+              showModal("<h3>施術記録を削除しますか？</h3><p>この記録は元に戻せません。</p>" +
+                '<div class="btn-row"><button class="btn" id="mCancel">キャンセル</button>' +
+                '<button class="btn danger" id="mOk">削除する</button></div>');
+              q("#mCancel").addEventListener("click", closeModal);
+              q("#mOk").addEventListener("click", function () {
+                var c = getCustomer(view.id);
+                c.records = (c.records || []).filter(function (r) { return r.id !== rid; });
+                c.updatedAt = new Date().toISOString();
+                saveDB(); closeModal(); render(); toast("削除しました");
+              });
+            });
+          });
+          var dc = q("#btnDeleteCustomer");
+          if (dc) dc.addEventListener("click", function () {
+            var c = getCustomer(view.id);
+            showModal("<h3>カルテを削除しますか？</h3><p>「" + esc(c.name) + "」様のプロフィール・問診・同意書・施術記録がすべて削除されます。元に戻せません。</p>" +
+              '<div class="btn-row"><button class="btn" id="mCancel">キャンセル</button>' +
+              '<button class="btn danger" id="mOk">削除する</button></div>');
+            q("#mCancel").addEventListener("click", closeModal);
+            q("#mOk").addEventListener("click", function () {
+              DB.customers = DB.customers.filter(function (x) { return x.id !== view.id; });
+              saveDB(); closeModal(); go({ name: "list" }); toast("削除しました");
+            });
+          });
+        }
+
+        if (view.name === "profileEdit") {
+          q("#btnCancelProfile").addEventListener("click", function () {
+            if (view.id) go({ name: "detail", id: view.id }); else go({ name: "list" });
+          });
+          q("#profileForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var name = q("#p-name").value.trim();
+            if (!name) { toast("氏名を入力してください", true); q("#p-name").focus(); return; }
+            var c = view.id ? getCustomer(view.id) : null;
+            if (!c) {
+              c = { id: uid(), interview: emptyInterview(), consent: emptyConsent(), records: [], createdAt: new Date().toISOString() };
+              DB.customers.push(c);
+            }
+            c.name = name;
+            c.furigana = q("#p-furigana").value.trim();
+            c.dob = q("#p-dob").value;
+            c.gender = q("#p-gender").value;
+            c.phone = q("#p-phone").value.trim();
+            c.occupation = q("#p-occupation").value.trim();
+            c.source = q("#p-source").value.trim();
+            c.sports = q("#p-sports").value.trim();
+            c.memo = q("#p-memo").value.trim();
+            c.updatedAt = new Date().toISOString();
+            if (saveDB()) { detailTab = "gaiyou"; go({ name: "detail", id: c.id }); toast("保存しました"); }
+          });
+        }
+
+        if (view.name === "interviewEdit") {
+          q("#btnBackDetail").addEventListener("click", function () { go({ name: "detail", id: view.id }); });
+          var c = getCustomer(view.id);
+          initSignature("i-sig", c && c.consent ? c.consent.signature : null);
+          bindBodyDiagram("i-");
+          var sc = q("#i-sigClear");
+          if (sc) sc.addEventListener("click", clearSignature);
+          q("#interviewForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var data = readInterviewForm("i-");
+            var cust = getCustomer(view.id);
+            cust.interview = data.interview;
+            if (data.consent.date || data.consent.signature) cust.consent = data.consent;
+            else if (document.getElementById("i-agree") && !document.getElementById("i-agree").checked && !data.consent.signature) {
+              // チェックも署名もなければ既存の同意を保持
+            }
+            cust.updatedAt = new Date().toISOString();
+            if (saveDB()) { detailTab = "monshin"; go({ name: "detail", id: view.id }); toast("保存しました"); }
+          });
+        }
+
+        if (view.name === "recordEdit") {
+          q("#btnBackDetail").addEventListener("click", function () { detailTab = "kiroku"; go({ name: "detail", id: view.id }); });
+          q("#r-course").addEventListener("change", function () {
+            var sel = q("#r-course").value;
+            COURSES.forEach(function (co) {
+              if (co.name === sel) {
+                if (co.minutes !== "") q("#r-minutes").value = co.minutes;
+                if (co.price !== "") q("#r-price").value = co.price;
+              }
+            });
+          });
+          q("#recordForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            var date = q("#r-date").value;
+            if (!date) { toast("日付を入力してください", true); return; }
+            var c = getCustomer(view.id);
+            if (!c.records) c.records = [];
+            var rec = null;
+            if (view.recordId) c.records.forEach(function (x) { if (x.id === view.recordId) rec = x; });
+            if (!rec) { rec = { id: uid() }; c.records.push(rec); }
+            rec.date = date;
+            rec.course = q("#r-course").value;
+            rec.minutes = q("#r-minutes").value === "" ? "" : Number(q("#r-minutes").value);
+            rec.price = q("#r-price").value === "" ? "" : Number(q("#r-price").value);
+            rec.content = q("#r-content").value.trim();
+            rec.condition = q("#r-condition").value.trim();
+            rec.note = q("#r-note").value.trim();
+            c.updatedAt = new Date().toISOString();
+            if (saveDB()) { detailTab = "kiroku"; go({ name: "detail", id: view.id }); toast("保存しました"); }
+          });
+        }
+
+        if (view.name === "backup") {
+          q("#btnBackList").addEventListener("click", function () { go({ name: "list" }); });
+          q("#btnExport").addEventListener("click", function () {
+            var blob = new Blob([JSON.stringify(DB, null, 2)], { type: "application/json" });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            var d = new Date();
+            a.href = url;
+            a.download = "karte-backup-" + d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0") + ".json";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+            toast("書き出しました");
+          });
+          q("#importFile").addEventListener("change", function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function () {
+              var parsed;
+              try { parsed = JSON.parse(reader.result); }
+              catch (err) { toast("ファイルの形式が正しくありません", true); return; }
+              if (!parsed || !Array.isArray(parsed.customers)) {
+                toast("カルテのバックアップファイルではないようです", true); return;
+              }
+              showModal("<h3>データを読み込みますか？</h3><p>ファイルには " + parsed.customers.length + "名のお客様が含まれています。<strong>現在のデータ（" + DB.customers.length + "名）は上書きされます。</strong></p>" +
+                '<div class="btn-row"><button class="btn" id="mCancel">キャンセル</button>' +
+                '<button class="btn primary" id="mOk">読み込んで復元する</button></div>');
+              q("#mCancel").addEventListener("click", closeModal);
+              q("#mOk").addEventListener("click", function () {
+                if (!parsed.version) parsed.version = 1;
+                parsed.customers.forEach(function (c) {
+                  if (!c.interview) c.interview = emptyInterview();
+                  if (!c.consent) c.consent = emptyConsent();
+                  if (!c.records) c.records = [];
+                });
+                DB = parsed;
+                saveDB(); closeModal(); go({ name: "list" }); toast("復元しました");
+              });
+            };
+            reader.readAsText(file);
+            e.target.value = "";
+          });
+          q("#btnDeleteAll").addEventListener("click", function () {
+            showModal("<h3>すべてのデータを削除しますか？</h3><p>この端末に保存されたカルテ（" + DB.customers.length + "名分）がすべて消えます。書き出したバックアップがない限り元に戻せません。</p>" +
+              '<div class="btn-row"><button class="btn" id="mCancel">キャンセル</button>' +
+              '<button class="btn danger" id="mStep2">削除に進む</button></div>');
+            q("#mCancel").addEventListener("click", closeModal);
+            q("#mStep2").addEventListener("click", function () {
+              showModal("<h3>本当に削除しますか？</h3><p>この操作は取り消せません。</p>" +
+                '<div class="btn-row"><button class="btn" id="mCancel2">やめる</button>' +
+                '<button class="btn danger" id="mFinal">すべて削除する</button></div>');
+              q("#mCancel2").addEventListener("click", closeModal);
+              q("#mFinal").addEventListener("click", function () {
+                DB = emptyDB();
+                try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+                saveDB(); closeModal(); go({ name: "list" }); toast("すべて削除しました");
+              });
+            });
+          });
+        }
+      }
+
+      /* ---------------- init ---------------- */
+      render();
+      if (signatureStrippedNotice) { /* 次回表示時に一覧で通知 */ }
+</script>
+  </body>
+</html>
